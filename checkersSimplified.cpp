@@ -81,8 +81,53 @@ void printBoard(char board[][9]) {
     }
 }
 
+//Function thatt verifies input is valid. Meaning not OOB
+bool checkIfMoveOOB(char board[][9], char player, int r, int c) {
+    if (board[r][c] != player) {
+        return true;
+    }
+    if (r > 8 || r < 1 || c > 8 || c < 1) {
+        return true;
+    }
+    return false;
+}
+
+void movePiece(char board[][9], char &player, int &r, int &c, char &dir) {
+    cin >> r;
+    cin >> c;
+    cin >> dir;
+    if (player == 'X') {
+        if (dir == 'R') {
+            board[r][c] = ' ';
+            board[r-1][c+1] = 'X';
+            player = 'O';
+        } else {
+            board[r][c] = ' ';
+            board[r-1][c-1] = 'X';
+            player = 'O';
+        }
+    } else {
+        if (dir == 'R') {
+            board[r][c] = ' ';
+            board[r+1][c+1] = 'O';
+            player = 'X';
+        } else {
+            board[r][c] = ' ';
+            board[r+1][c-1] = 'O';
+            player = 'X';
+        }
+    }
+}
+
 int main() {
-    char board[9][9];
+    int r, c;
+    char board[9][9], player = 'X', dir;
     initializeBoard(board);
     printBoard(board);
+    while (true) {
+        movePiece(board, player, r, c, dir);
+        printBoard(board);
+    }
 }
+
+
