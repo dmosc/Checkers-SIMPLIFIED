@@ -25,6 +25,32 @@ void initializeBoard(char board[][9]) {
             }
         }
     }
+    
+    //Fills the board with the 0 player
+    for (int r = 1; r < 4; r++) {
+        if (r % 2 != 0) {
+            for (int c = 2; c < 9; c+=2) {
+                board[r][c] = '0';
+            }
+        } else {
+            for (int c = 1; c < 9; c+=2) {
+                board[r][c] = '0';
+            }
+        }
+    }
+    
+    //Fills the board with the X player
+    for (int r = 6; r < 9; r++) {
+        if (r % 2 != 0) {
+            for (int c = 2; c < 9; c+=2) {
+                board[r][c] = 'X';
+            }
+        } else {
+            for (int c = 1; c < 9; c+=2) {
+                board[r][c] = 'X';
+            }
+        }
+    }
 }
 
 //This function prints the board on the console
