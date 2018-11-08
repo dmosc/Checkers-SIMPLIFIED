@@ -105,8 +105,24 @@ bool checkIfMoveValid(char board[][9], char player, int r, int c) {
     return false;
 }
 
-void movePiece(char board[][9], char &player, int &r, int &c, char &dir) {
+//This function verifies if the player would like to continue playing. It starts asking after the FIRST move.
+//User can input 'Y' or 'N' upper and lower case
+bool checkIfKeepPlaying(char keepPlaying) {
+    if (toupper(keepPlaying) == 'Y') {
+        return false;
+    }
+    return true;
+}
+
+void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &totalMoves, char &keepPlaying) {
     do {
+        if (totalMoves != 0) {
+            cout << "Continue playing? (Y/N): ";
+            cin >> keepPlaying;
+            if (checkIfKeepPlaying(keepPlaying)) {
+                return;
+            }
+        }
         //Determines whose turn is and if move is valid.
         (player == 'X') ? cout << "Player X row -> " : cout << "Player Y row -> ";
         cin >> r;
@@ -125,44 +141,46 @@ void movePiece(char board[][9], char &player, int &r, int &c, char &dir) {
     //Determines whose piece will move.
     if (player == 'X') {
         //Determines the direction of that piece movement.
-        if (dir == 'R') {
+        if (toupper(dir) == 'R') {
             //MAGICAL CHANGE
             board[r][c] = ' ';
             board[r-1][c+1] = 'X';
             player = 'O';
+            totalMoves++;
         } else {
             //MAGICAL CHANGE
             board[r][c] = ' ';
             board[r-1][c-1] = 'X';
             player = 'O';
+            totalMoves++;
         }
     } else {
         //Determines the direction of that piece movement.
-        if (dir == 'R') {
+        if (toupper(dir) == 'R') {
             //MAGICAL CHANGE
             board[r][c] = ' ';
             board[r+1][c+1] = 'O';
             player = 'X';
+            totalMoves++;
         } else {
             //MAGICAL CHANGE
             board[r][c] = ' ';
             board[r+1][c-1] = 'O';
             player = 'X';
+            totalMoves++;
         }
     }
 }
 
 int main() {
-    int r, c;
-    char board[9][9], player = 'X', dir;
+    int r, c, totalMoves = 0;
+    char board[9][9], player = 'X', dir, keepPlaying = 'Y';
     
     initializeBoard(board);
     printBoard(board);
     
-    while (true) {
-        movePiece(board, player, r, c, dir);
+    while (!checkIfKeepPlaying(keepPlaying)) {
+        movePiece(board, player, r, c, dir, totalMoves, keepPlaying);
         printBoard(board);
     }
 }
-
-
