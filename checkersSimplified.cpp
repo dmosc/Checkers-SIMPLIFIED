@@ -134,6 +134,13 @@ bool checkIfMovePossible(char board[][9], char player, int r, int c) {
     return false;
 }
 
+bool checkIfTakePiece(char board[][9], char player, int r, int c, char dir, int vDisp, int hDisp) {
+    if ((board[r][c] != player && board[r][c] != ' ') && board[r + vDisp][c + hDisp] == ' ') {
+        return true;
+    }
+    return false;
+}
+
 void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &totalMoves, char &keepPlaying) {
     do {
         if (totalMoves != 0) {
@@ -164,16 +171,30 @@ void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &to
         if (toupper(dir) == 'R') {
             //MAGICAL CHANGE
             if (checkIfMovePossible(board, player, r - 1, c + 1)) {
-                board[r][c] = ' ';
-                board[r-1][c+1] = 'X';
+                //if move is possible, then check if you have any piece to eat.
+                //if yes, eat it, if not, do the following >>>>>>
+                if (checkIfTakePiece(board, player, r - 1, c + 1, dir, -1, 1)) {
+                    board[r][c] = ' ';
+                    board[r - 1][c + 1] = ' ';
+                    board[r - 2][c + 2] = 'X';
+                } else {
+                    board[r][c] = ' ';
+                    board[r - 1][c + 1] = 'X';
+                }
             }
             player = 'O';
             totalMoves++;
         } else {
             //MAGICAL CHANGE
             if (checkIfMovePossible(board, player, r - 1, c - 1)) {
-                board[r][c] = ' ';
-                board[r-1][c-1] = 'X';
+                if (checkIfTakePiece(board, player, r - 1, c - 1, dir, -1, -1)) {
+                    board[r][c] = ' ';
+                    board[r - 1][c - 1] = ' ';
+                    board[r - 2][c - 2] = 'X';
+                } else {
+                    board[r][c] = ' ';
+                    board[r - 1][c - 1] = 'X';
+                }
             }
             player = 'O';
             totalMoves++;
@@ -183,16 +204,28 @@ void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &to
         if (toupper(dir) == 'R') {
             //MAGICAL CHANGE
             if (checkIfMovePossible(board, player, r + 1, c + 1)) {
-                board[r][c] = ' ';
-                board[r+1][c+1] = 'O';
+                if (checkIfTakePiece(board, player, r + 1, c + 1, dir, 1, 1)) {
+                    board[r][c] = ' ';
+                    board[r + 1][c + 1] = ' ';
+                    board[r + 2][c + 2] = 'O';
+                } else {
+                    board[r][c] = ' ';
+                    board[r+1][c+1] = 'O';
+                }
             }
             player = 'X';
             totalMoves++;
         } else {
             //MAGICAL CHANGE
             if (checkIfMovePossible(board, player, r + 1, c - 1)) {
-                board[r][c] = ' ';
-                board[r+1][c-1] = 'O';
+                if (checkIfTakePiece(board, player, r + 1, c - 1, dir, 1, -1)) {
+                    board[r][c] = ' ';
+                    board[r + 1][c - 1] = ' ';
+                    board[r + 2][c - 2] = 'O';
+                } else {
+                    board[r][c] = ' ';
+                    board[r+1][c-1] = 'O';
+                }
             }
             player = 'X';
             totalMoves++;
