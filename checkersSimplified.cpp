@@ -114,6 +114,26 @@ bool checkIfKeepPlaying(char keepPlaying) {
     return true;
 }
 
+//Verifies that the updated position is possible and inside the board.
+bool checkIfInside(int r, int c) {
+    if (r > 8 || r < 1 || c > 8 || c < 1) {
+        return false;
+    }
+    return true;
+}
+
+/*
+ This function verifies if the move that is taking place does not land OB or on top of another piece of equal
+ colour. There is additionally another function "checkIfInside()" that is called with the row and column updated
+ to verify that the move is possible.
+ */
+bool checkIfMovePossible(char board[][9], char player, int r, int c) {
+    if ((board[r][c] == ' ' || board[r][c] != player) && checkIfInside(r, c)) {
+        return true;
+    }
+    return false;
+}
+
 void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &totalMoves, char &keepPlaying) {
     do {
         if (totalMoves != 0) {
@@ -143,14 +163,18 @@ void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &to
         //Determines the direction of that piece movement.
         if (toupper(dir) == 'R') {
             //MAGICAL CHANGE
-            board[r][c] = ' ';
-            board[r-1][c+1] = 'X';
+            if (checkIfMovePossible(board, player, r - 1, c + 1)) {
+                board[r][c] = ' ';
+                board[r-1][c+1] = 'X';
+            }
             player = 'O';
             totalMoves++;
         } else {
             //MAGICAL CHANGE
-            board[r][c] = ' ';
-            board[r-1][c-1] = 'X';
+            if (checkIfMovePossible(board, player, r - 1, c - 1)) {
+                board[r][c] = ' ';
+                board[r-1][c-1] = 'X';
+            }
             player = 'O';
             totalMoves++;
         }
@@ -158,14 +182,18 @@ void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &to
         //Determines the direction of that piece movement.
         if (toupper(dir) == 'R') {
             //MAGICAL CHANGE
-            board[r][c] = ' ';
-            board[r+1][c+1] = 'O';
+            if (checkIfMovePossible(board, player, r + 1, c + 1)) {
+                board[r][c] = ' ';
+                board[r+1][c+1] = 'O';
+            }
             player = 'X';
             totalMoves++;
         } else {
             //MAGICAL CHANGE
-            board[r][c] = ' ';
-            board[r+1][c-1] = 'O';
+            if (checkIfMovePossible(board, player, r + 1, c - 1)) {
+                board[r][c] = ' ';
+                board[r+1][c-1] = 'O';
+            }
             player = 'X';
             totalMoves++;
         }
@@ -184,3 +212,4 @@ int main() {
         printBoard(board);
     }
 }
+
