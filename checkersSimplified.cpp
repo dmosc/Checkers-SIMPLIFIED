@@ -134,8 +134,12 @@ bool checkIfMovePossible(char board[][9], char player, int r, int c) {
     return false;
 }
 
+/*
+ This function verifies if the move that is taking place is capable of taking a piece of the other player,
+ thus, enabling piece eating between players.
+ */
 bool checkIfTakePiece(char board[][9], char player, int r, int c, char dir, int vDisp, int hDisp) {
-    if ((board[r][c] != player && board[r][c] != ' ') && board[r + vDisp][c + hDisp] == ' ') {
+    if ((board[r][c] != player && board[r][c] != ' ') && board[r + vDisp][c + hDisp] == ' ' && checkIfMovePossible(board, player, r + vDisp, c + hDisp)) {
         return true;
     }
     return false;
@@ -151,7 +155,7 @@ void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &to
             }
         }
         //Determines whose turn is and if move is valid.
-        (player == 'X') ? cout << "Player X row -> " : cout << "Player Y row -> ";
+        (player == 'X') ? cout << "Player X row -> " : cout << "Player O row -> ";
         cin >> r;
         cout << "column -> ";
         cin >> c;
