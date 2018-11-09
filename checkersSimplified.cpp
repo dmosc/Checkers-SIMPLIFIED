@@ -4,6 +4,16 @@
 
 using namespace std;
 
+void printResult(int scoreCard) {
+    if (scoreCard == 0) {
+        cout << "It was a tie!" << endl;
+    } else if (scoreCard > 0) {
+        cout << "X player won!" << endl;
+    } else {
+        cout << "O player won!" << endl;
+    }
+}
+
 //This function initialises a 9x9 grid.
 //The extra row,col pair is for adding the enumeration of the board
 void initializeBoard(char board[][9]) {
@@ -145,7 +155,7 @@ bool movePossibleX(char board[][9], int r, int c) {
 }
 
 bool takePossibleX(char board[][9], int r, int c, int r1, int c1) {
-    if (board[r][c] == 'O' && board[r1][c1] == ' ') {
+    if (board[r][c] == 'O' && board[r1][c1] == ' ' && checkIfInside(r1, c1)) {
         return true;
     }
     return false;
@@ -187,7 +197,7 @@ bool movePossibleO(char board[][9], int r, int c) {
 }
 
 bool takePossibleO(char board[][9], int r, int c, int r1, int c1) {
-    if (board[r][c] == 'X' && board[r1][c1] == ' ') {
+    if (board[r][c] == 'X' && board[r1][c1] == ' ' && checkIfInside(r1, c1)) {
         return true;
     }
     return false;
@@ -215,7 +225,7 @@ void takePieceOL(char board[][9], int r, int c) {
     board[r + 2][c - 2] = 'O';
 }
 
-void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &totalMoves, char &keepPlaying) {
+void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &totalMoves, char &keepPlaying, int &scoreCard) {
     do {
         //Determines whose turn is and if move is valid.
         inputValues(board, player, r, c, dir);
@@ -234,12 +244,14 @@ void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &to
                 moveXR(board, r, c);
             } else if (takePossibleX(board, r - 1, c + 1, r - 2, c + 2)) {
                 takePieceXR(board, r, c);
+                scoreCard++;
             }
         } else {
             if (movePossibleX(board, r - 1, c - 1)) {
                 moveXL(board, r, c);
             } else if (takePossibleX(board, r - 1, c - 1, r - 2, c - 2)) {
                 takePieceXL(board, r, c);
+                scoreCard++;
             }
         }
         player = 'O';
@@ -250,12 +262,14 @@ void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &to
                 moveOR(board, r, c);
             } else if (takePossibleO(board, r + 1, c + 1, r + 2, c + 2)) {
                 takePieceOR(board, r, c);
+                scoreCard--;
             }
         } else {
             if (movePossibleO(board, r + 1, c - 1)) {
                 moveOL(board, r, c);
             } else if (takePossibleO(board, r + 1, c - 1, r + 2, c - 2)) {
                 takePieceOL(board, r, c);
+                scoreCard--;
             }
         }
         player = 'X';
@@ -264,16 +278,18 @@ void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &to
 }
 
 int main() {
-    int r, c, totalMoves = 0;
+    int r, c, totalMoves = 0, scoreCard = 0;
     char board[9][9], player = 'X', dir, keepPlaying = 'Y';
     
     initializeBoard(board);
     printBoard(board);
     
     while (checkIfKeepPlaying(keepPlaying, totalMoves)) {
-        movePiece(board, player, r, c, dir, totalMoves, keepPlaying);
+        movePiece(board, player, r, c, dir, totalMoves, keepPlaying, scoreCard);
         printBoard(board);
     }
+    
+    printResult(scoreCard);
 }
 
 
