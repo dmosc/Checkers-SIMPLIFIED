@@ -1,4 +1,4 @@
-//TRYING THE NEW BRANCHHH UPDATES
+//Currently working on the moveTesting branch **********
 #include <iostream>
 #include <string>
 
@@ -83,14 +83,14 @@ void printBoard(char board[][9]) {
 }
 
 //Function thatt verifies input is valid. Meaning not OOB.
-bool checkIfMoveValid(char board[][9], char player, int r, int c) {
+bool moveValid(char board[][9], char player, int r, int c) {
     /*If player's input is OOB, the function instantly returns true
      with a rejection message indicating that the checkbox selected is OOB.
      */
     if (r > 8 || r < 1 || c > 8 || c < 1) {
         cout << "OOB! [1-8][1-8][L-R]" << endl;
         cout << "ENTER VALID VALUES:" << endl;
-        return true;
+        return false;
     }
     
     /*If player input coordinate does not match the player's value,
@@ -100,19 +100,32 @@ bool checkIfMoveValid(char board[][9], char player, int r, int c) {
     if (board[r][c] != player) {
         cout << "Whoops! It seems that you don't have a piece there." << endl;
         cout << "PICK A BOX THAT CONTAINS A PIECE OF YOURS:" << endl;
-        return true;
+        return false;
     }
     
-    return false;
+    return true;
 }
 
 //This function verifies if the player would like to continue playing. It starts asking after the FIRST move.
 //User can input 'Y' or 'N' upper and lower case
-bool checkIfKeepPlaying(char keepPlaying) {
-    if (toupper(keepPlaying) == 'Y') {
-        return false;
+bool checkIfKeepPlaying(char &keepPlaying, int &totalMoves) {
+    if (totalMoves != 0) {
+        cout << "Continue playing? (Y/N): ";
+        cin >> keepPlaying;
+        if (toupper(keepPlaying) == 'N') {
+            return false;
+        }
     }
     return true;
+}
+
+void inputValues(char board[][9], char &player, int &r, int &c, char &dir) {
+    (player == 'X') ? cout << "Player X row -> " : cout << "Player O row -> ";
+    cin >> r;
+    cout << "column -> ";
+    cin >> c;
+    cout << "direction (R - right, L - left) -> ";
+    cin >> dir;
 }
 
 //Verifies that the updated position is possible and inside the board.
@@ -123,13 +136,16 @@ bool checkIfInside(int r, int c) {
     return true;
 }
 
-/*
- This function verifies if the move that is taking place does not land OB or on top of another piece of equal
- colour. There is additionally another function "checkIfInside()" that is called with the row and column updated
- to verify that the move is possible.
- */
-bool checkIfMovePossible(char board[][9], char player, int r, int c) {
-    if ((board[r][c] == ' ' || board[r][c] != player) && checkIfInside(r, c)) {
+/////////////////////////////////////////// X FUNCTIONS
+bool movePossibleX(char board[][9], int r, int c) {
+    if (board[r][c] == ' ' && checkIfInside(r, c)) {
+        return true;
+    }
+    return false;
+}
+
+bool takePossibleX(char board[][9], int r, int c, int r1, int c1) {
+    if (board[r][c] == 'O' && board[r1][c1] == ' ') {
         return true;
     }
     return false;
@@ -139,30 +155,71 @@ bool checkIfMovePossible(char board[][9], char player, int r, int c) {
  This function verifies if the move that is taking place is capable of taking a piece of the other player,
  thus, enabling piece eating between players.
  */
-bool checkIfTakePiece(char board[][9], char player, int r, int c, char dir, int vDisp, int hDisp) {
-    if ((board[r][c] != player && board[r][c] != ' ') && board[r + vDisp][c + hDisp] == ' ' && checkIfMovePossible(board, player, r + vDisp, c + hDisp)) {
+
+void moveXR(char board[][9], int r, int c) {
+    board[r][c] = ' ';
+    board[r - 1][c + 1] = 'X';
+}
+
+void moveXL(char board[][9], int r, int c) {
+    board[r][c] = ' ';
+    board[r - 1][c - 1] = 'X';
+}
+
+void takePieceXR(char board[][9], int r, int c) {
+    board[r][c] = ' ';
+    board[r - 1][c + 1] = ' ';
+    board[r - 2][c + 2] = 'X';
+}
+
+void takePieceXL(char board[][9], int r, int c) {
+    board[r][c] = ' ';
+    board[r - 1][c - 1] = ' ';
+    board[r - 2][c - 2] = 'X';
+}
+
+/////////////////////////////////////////// O FUNCTIONS
+bool movePossibleO(char board[][9], int r, int c) {
+    if (board[r][c] == ' ' && checkIfInside(r, c)) {
         return true;
     }
     return false;
 }
 
+bool takePossibleO(char board[][9], int r, int c, int r1, int c1) {
+    if (board[r][c] == 'X' && board[r1][c1] == ' ') {
+        return true;
+    }
+    return false;
+}
+
+void moveOR(char board[][9], int r, int c) {
+    board[r][c] = ' ';
+    board[r + 1][c + 1] = 'O';
+}
+
+void moveOL(char board[][9], int r, int c) {
+    board[r][c] = ' ';
+    board[r + 1][c - 1] = 'O';
+}
+
+void takePieceOR(char board[][9], int r, int c) {
+    board[r][c] = ' ';
+    board[r + 1][c + 1] = ' ';
+    board[r + 2][c + 2] = 'O';
+}
+
+void takePieceOL(char board[][9], int r, int c) {
+    board[r][c] = ' ';
+    board[r + 1][c - 1] = ' ';
+    board[r + 2][c - 2] = 'O';
+}
+
 void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &totalMoves, char &keepPlaying) {
     do {
-        if (totalMoves != 0) {
-            cout << "Continue playing? (Y/N): ";
-            cin >> keepPlaying;
-            if (checkIfKeepPlaying(keepPlaying)) {
-                return;
-            }
-        }
         //Determines whose turn is and if move is valid.
-        (player == 'X') ? cout << "Player X row -> " : cout << "Player O row -> ";
-        cin >> r;
-        cout << "column -> ";
-        cin >> c;
-        cout << "direction (R - right, L - left) -> ";
-        cin >> dir;
-    } while (checkIfMoveValid(board, player, r, c));
+        inputValues(board, player, r, c, dir);
+    } while (!moveValid(board, player, r, c));
     
     /*
      Here is where the magic happens. Once a move is verified and valid, the following
@@ -172,69 +229,37 @@ void movePiece(char board[][9], char &player, int &r, int &c, char &dir, int &to
      */
     //Determines whose piece will move.
     if (player == 'X') {
-        //Determines the direction of that piece movement.
         if (toupper(dir) == 'R') {
-            //MAGICAL CHANGE
-            if (checkIfMovePossible(board, player, r - 1, c + 1)) {
-                //if move is possible, then check if you have any piece to eat.
-                //if yes, eat it, if not, do the following >>>>>>
-                if (checkIfTakePiece(board, player, r - 1, c + 1, dir, -1, 1)) {
-                    board[r][c] = ' ';
-                    board[r - 1][c + 1] = ' ';
-                    board[r - 2][c + 2] = 'X';
-                } else {
-                    board[r][c] = ' ';
-                    board[r - 1][c + 1] = 'X';
-                }
+            if (movePossibleX(board, r - 1, c + 1)) {
+                moveXR(board, r, c);
+            } else if (takePossibleX(board, r - 1, c + 1, r - 2, c + 2)) {
+                takePieceXR(board, r, c);
             }
-            player = 'O';
-            totalMoves++;
         } else {
-            //MAGICAL CHANGE
-            if (checkIfMovePossible(board, player, r - 1, c - 1)) {
-                if (checkIfTakePiece(board, player, r - 1, c - 1, dir, -1, -1)) {
-                    board[r][c] = ' ';
-                    board[r - 1][c - 1] = ' ';
-                    board[r - 2][c - 2] = 'X';
-                } else {
-                    board[r][c] = ' ';
-                    board[r - 1][c - 1] = 'X';
-                }
+            if (movePossibleX(board, r - 1, c - 1)) {
+                moveXL(board, r, c);
+            } else if (takePossibleX(board, r - 1, c - 1, r - 2, c - 2)) {
+                takePieceXL(board, r, c);
             }
-            player = 'O';
-            totalMoves++;
         }
+        player = 'O';
+        totalMoves++;
     } else {
-        //Determines the direction of that piece movement.
         if (toupper(dir) == 'R') {
-            //MAGICAL CHANGE
-            if (checkIfMovePossible(board, player, r + 1, c + 1)) {
-                if (checkIfTakePiece(board, player, r + 1, c + 1, dir, 1, 1)) {
-                    board[r][c] = ' ';
-                    board[r + 1][c + 1] = ' ';
-                    board[r + 2][c + 2] = 'O';
-                } else {
-                    board[r][c] = ' ';
-                    board[r+1][c+1] = 'O';
-                }
+            if (movePossibleO(board, r + 1, c + 1)) {
+                moveOR(board, r, c);
+            } else if (takePossibleO(board, r + 1, c + 1, r + 2, c + 2)) {
+                takePieceOR(board, r, c);
             }
-            player = 'X';
-            totalMoves++;
         } else {
-            //MAGICAL CHANGE
-            if (checkIfMovePossible(board, player, r + 1, c - 1)) {
-                if (checkIfTakePiece(board, player, r + 1, c - 1, dir, 1, -1)) {
-                    board[r][c] = ' ';
-                    board[r + 1][c - 1] = ' ';
-                    board[r + 2][c - 2] = 'O';
-                } else {
-                    board[r][c] = ' ';
-                    board[r+1][c-1] = 'O';
-                }
+            if (movePossibleO(board, r + 1, c - 1)) {
+                moveOL(board, r, c);
+            } else if (takePossibleO(board, r + 1, c - 1, r + 2, c - 2)) {
+                takePieceOL(board, r, c);
             }
-            player = 'X';
-            totalMoves++;
         }
+        player = 'X';
+        totalMoves++;
     }
 }
 
@@ -245,9 +270,11 @@ int main() {
     initializeBoard(board);
     printBoard(board);
     
-    while (!checkIfKeepPlaying(keepPlaying)) {
+    while (checkIfKeepPlaying(keepPlaying, totalMoves)) {
         movePiece(board, player, r, c, dir, totalMoves, keepPlaying);
         printBoard(board);
     }
 }
+
+
 
